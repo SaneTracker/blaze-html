@@ -75,7 +75,7 @@ writeHtmlVariant htmlVariant = do
                                : "docTypeHtml"
                                : map (sanitize . fst) sortedTags
         , DO_NOT_EDIT
-        , "import Prelude ((>>), (.))"
+        , "import Prelude ((>>), (>>=), (.), Monad, return, ($))"
         , ""
         , "import Text.Blaze"
         , "import Text.Blaze.Internal"
@@ -164,7 +164,7 @@ makeDocType lines' = unlines
     , "-- Result:"
     , "--"
     , unlines (map ("-- > " ++) lines') ++ "--"
-    , "docType :: Html  -- ^ The document type HTML."
+    , "docType :: Monad m => Html m () -- ^ The document type HTML."
     , "docType = preEscapedText " ++ show (unlines lines')
     , "{-# INLINE docType #-}"
     ]
@@ -186,8 +186,8 @@ makeDocTypeHtml lines' = unlines
     , "--"
     , unlines (map ("-- > " ++) lines') ++ "-- > <html><span>foo</span></html>"
     , "--"
-    , "docTypeHtml :: Html  -- ^ Inner HTML."
-    , "            -> Html  -- ^ Resulting HTML."
+    , "docTypeHtml :: Monad m => Html m a -- ^ Inner HTML."
+    , "            -> Html m a            -- ^ Resulting HTML."
     , "docTypeHtml inner = docType >> html inner"
     , "{-# INLINE docTypeHtml #-}"
     ]
@@ -207,15 +207,15 @@ makeParent tag = unlines
     , "--"
     , "-- > <" ++ tag ++ "><span>foo</span></" ++ tag ++ ">"
     , "--"
-    , function        ++ " :: Html  -- ^ Inner HTML."
-    , spaces function ++ " -> Html  -- ^ Resulting HTML."
-    , function        ++ " = Parent \"" ++ tag ++ "\" \"<" ++ tag
-                      ++ "\" \"</" ++ tag ++ ">\"" ++ modifier
+    , function        ++ " :: Monad m => Html m a -- ^ Inner HTML."
+    , spaces function ++ " -> Html m a -- ^ Resulting HTML."
+    , function        ++ " (MarkupM m) = MarkupM (m >>= \\(x, mi) -> return (x, Parent \"" ++ tag ++ "\" \"<" ++ tag
+                      ++ "\" \"</" ++ tag ++ ">\"" ++ modifier ++ " mi))"
     , "{-# INLINE " ++ function ++ " #-}"
     ]
   where
     function = sanitize tag
-    modifier = if tag `elem` ["style", "script"] then " . external" else ""
+    modifier = if tag `elem` ["style", "script"] then " $ external'" else ""
 
 -- | Generate a function for an HTML tag that must be a leaf.
 --
@@ -234,9 +234,9 @@ makeLeaf closing tag = unlines
     , "--"
     , "-- > <" ++ tag ++ " />"
     , "--"
-    , function ++ " :: Html  -- ^ Resulting HTML."
-    , function ++ " = Leaf \"" ++ tag ++ "\" \"<" ++ tag ++ "\" " ++ "\""
-               ++ (if closing then " /" else "") ++ ">\""
+    , function ++ " :: Monad m => Html m () -- ^ Resulting HTML."
+    , function ++ " = MarkupM $ return ((), Leaf \"" ++ tag ++ "\" \"<" ++ tag ++ "\" " ++ "\""
+               ++ (if closing then " /" else "") ++ ">\")"
     , "{-# INLINE " ++ function ++ " #-}"
     ]
   where

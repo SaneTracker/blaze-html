@@ -12,14 +12,14 @@ import Text.Blaze.Html (Html)
 import qualified Data.Text.Lazy as TL
 import qualified Text.Blaze.Renderer.Text as R
 
-renderHtmlBuilder :: Html -> Builder
+renderHtmlBuilder :: Monad m => Html m a -> m Builder
 renderHtmlBuilder = R.renderMarkupBuilder
 
-renderHtmlBuilderWith :: (ByteString -> Text) -> Html -> Builder
+renderHtmlBuilderWith :: Monad m => (ByteString -> Text) -> Html m a -> m Builder
 renderHtmlBuilderWith = R.renderMarkupBuilderWith
 
-renderHtml :: Html -> TL.Text
+renderHtml :: Monad m => Html m a -> m TL.Text
 renderHtml = R.renderMarkup
 
-renderHtmlWith :: (ByteString -> Text) -> Html -> TL.Text
+renderHtmlWith :: Monad m => (ByteString -> Text) -> Html m a -> m TL.Text
 renderHtmlWith = R.renderMarkupWith

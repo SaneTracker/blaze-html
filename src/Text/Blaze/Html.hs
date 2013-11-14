@@ -6,11 +6,12 @@ module Text.Blaze.Html
     ) where
 
 import Text.Blaze
+import Text.Blaze.Internal
 
-type Html = Markup
+type Html = MarkupM
 
-toHtml :: ToMarkup a => a -> Html
+toHtml :: (Monad m, ToMarkup m a) => a -> Html m ()
 toHtml = toMarkup
 
-preEscapedToHtml :: ToMarkup a => a -> Html
+preEscapedToHtml :: (Monad m, ToMarkup m a) => a -> Html m ()
 preEscapedToHtml = preEscapedToMarkup

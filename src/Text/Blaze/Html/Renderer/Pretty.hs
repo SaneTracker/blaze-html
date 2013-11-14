@@ -5,5 +5,5 @@ module Text.Blaze.Html.Renderer.Pretty
 import Text.Blaze.Html (Html)
 import Text.Blaze.Renderer.Pretty (renderMarkup)
 
-renderHtml :: Html -> String
+renderHtml :: Monad m => Html m a -> m String
 renderHtml = renderMarkup

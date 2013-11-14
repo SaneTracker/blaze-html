@@ -10,11 +10,11 @@ import Text.Blaze.Html (Html)
 import qualified Data.ByteString.Lazy as BL
 import qualified Text.Blaze.Renderer.Utf8 as R
 
-renderHtmlBuilder :: Html -> Builder
+renderHtmlBuilder :: Monad m => Html m a -> m Builder
 renderHtmlBuilder = R.renderMarkupBuilder
 
-renderHtml :: Html -> BL.ByteString
+renderHtml :: Monad m => Html m a -> m BL.ByteString
 renderHtml = R.renderMarkup
 
-renderHtmlToByteStringIO :: (ByteString -> IO ()) -> Html -> IO ()
+renderHtmlToByteStringIO :: (ByteString -> IO ()) -> Html IO a -> IO ()
 renderHtmlToByteStringIO = R.renderMarkupToByteStringIO

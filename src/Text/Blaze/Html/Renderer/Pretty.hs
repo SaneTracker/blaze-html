@@ -1,9 +1,14 @@
 module Text.Blaze.Html.Renderer.Pretty
     ( renderHtml
+    , renderHtmlT
     ) where
 
-import Text.Blaze.Html (Html)
+import Data.Functor.Identity (runIdentity)
+import Text.Blaze.Html (Html, HtmlT)
 import Text.Blaze.Renderer.Pretty (renderMarkup)
 
-renderHtml :: Monad m => Html m a -> m String
-renderHtml = renderMarkup
+renderHtml :: Html -> String
+renderHtml = runIdentity . renderMarkup
+
+renderHtmlT :: Monad m => HtmlT m a -> m String
+renderHtmlT = renderMarkup

@@ -164,7 +164,7 @@ makeDocType lines' = unlines
     , "-- Result:"
     , "--"
     , unlines (map ("-- > " ++) lines') ++ "--"
-    , "docType :: Monad m => Html m () -- ^ The document type HTML."
+    , "docType :: Monad m => HtmlT m () -- ^ The document type HTML."
     , "docType = preEscapedText " ++ show (unlines lines')
     , "{-# INLINE docType #-}"
     ]
@@ -186,8 +186,8 @@ makeDocTypeHtml lines' = unlines
     , "--"
     , unlines (map ("-- > " ++) lines') ++ "-- > <html><span>foo</span></html>"
     , "--"
-    , "docTypeHtml :: Monad m => Html m a -- ^ Inner HTML."
-    , "            -> Html m a            -- ^ Resulting HTML."
+    , "docTypeHtml :: Monad m => HtmlT m a -- ^ Inner HTML."
+    , "            -> HtmlT m a            -- ^ Resulting HTML."
     , "docTypeHtml inner = docType >> html inner"
     , "{-# INLINE docTypeHtml #-}"
     ]
@@ -207,8 +207,8 @@ makeParent tag = unlines
     , "--"
     , "-- > <" ++ tag ++ "><span>foo</span></" ++ tag ++ ">"
     , "--"
-    , function        ++ " :: Monad m => Html m a -- ^ Inner HTML."
-    , spaces function ++ " -> Html m a -- ^ Resulting HTML."
+    , function        ++ " :: Monad m => HtmlT m a -- ^ Inner HTML."
+    , spaces function ++ " -> HtmlT m a -- ^ Resulting HTML."
     , function        ++ " (MarkupM m) = MarkupM (m >>= \\(x, mi) -> return (x, Parent \"" ++ tag ++ "\" \"<" ++ tag
                       ++ "\" \"</" ++ tag ++ ">\"" ++ modifier ++ " mi))"
     , "{-# INLINE " ++ function ++ " #-}"
@@ -234,7 +234,7 @@ makeLeaf closing tag = unlines
     , "--"
     , "-- > <" ++ tag ++ " />"
     , "--"
-    , function ++ " :: Monad m => Html m () -- ^ Resulting HTML."
+    , function ++ " :: Monad m => HtmlT m () -- ^ Resulting HTML."
     , function ++ " = MarkupM $ return ((), Leaf \"" ++ tag ++ "\" \"<" ++ tag ++ "\" " ++ "\""
                ++ (if closing then " /" else "") ++ ">\")"
     , "{-# INLINE " ++ function ++ " #-}"
